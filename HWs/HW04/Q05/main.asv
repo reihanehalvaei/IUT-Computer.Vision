@@ -1,0 +1,33 @@
+clc;clear;close all;
+load patients.mat
+
+numOfpicture = zeros(20,1,'uint8');
+sensivity = zeros(20,1,'double');
+specificity = zeros(20,1,'double');
+accuracy = zeros(20,1,'double');
+
+path01 = './DRIVE/Test/';
+
+for k=1:20
+    if k<10
+        idx = "0"+num2str(p);
+    else
+        idx = num2str(p);
+    end
+    I = imread(path01 + "images/" + idx + "_test.tif");
+    mask = imread(path01 + "mask/" + idx + "_test_mask.gif");
+    manual_ans = imread(path01 + "1st_manual/" + idx + "_manual1.gif");
+    T=VesselExtract(I,p,mask,manual_ans);
+    
+    
+    numOfpicture(p) = T(1);
+    sensivity(p) = T(2);
+    specificity(p) = T(3);
+    accuracy(p) = T(4);
+    %imshow(I,[]);
+    
+        
+end
+
+T = table(numOfpicture,sensivity,specificity,accuracy);
+T(1:20,:)

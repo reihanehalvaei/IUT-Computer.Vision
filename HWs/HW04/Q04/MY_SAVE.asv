@@ -1,0 +1,41 @@
+function out = MY_SAVE(III,I)
+load patients.mat
+
+
+[r,c] = size(III);
+
+Histogram=zeros(1,256);
+for i=1:r
+    for j=1:c
+        b=I(i,j);
+        Histogram(b+1)=Histogram(b+1)+1;
+    end
+end
+counter=0;
+for z=1:255
+       if Histogram(z)==0
+           break;
+       else
+           counter=counter+1;
+       end
+end
+
+min_arr2=zeros(r,c);
+III=im2double(III);
+out=zeros(1,counter);
+for k=1:counter
+    min_arr2=(I==k);
+    double(min_arr2);
+    out(k)=sum(sum(min_arr2.*III))/Histogram(k);
+end
+area=zeros(256,1);
+midpixlres=zeros(256,1);
+
+for k=1:counter
+    area(k)=Histogram
+end
+
+T = table(out,Histogram);
+filename = 'patientdata.xlsx';
+writetable(T,filename,'Sheet',1,'Range','A1')
+end

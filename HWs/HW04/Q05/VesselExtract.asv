@@ -1,0 +1,57 @@
+function T = VesselExtract(I,k,mask,manual_ans)
+    I = rgb2gray(I);
+    [x,y] = size(I);
+    Filter_Avg = fspecial('Average',[20 20]);
+    S = imfilter(I,Filter_Avg);
+    
+
+    K = 0.95;
+    T = S*K;
+    I = ~(I>T);
+    
+    se = strel('disk',1);
+    I = imclose(I,se);
+    mask = imerode(mask,se);
+    mask = imerode(mask,se);
+    mask = imerode(mask,se);
+    mask = imerode(mask,se);
+    mask = imerode(mask,se);
+    
+    CC = bwconncomp(I);
+    numPixels = cellfun(@numel,CC.PixelIdxList);
+    sizenum = size(numPixels);
+
+    for i=1:sizenum(2)
+        if numPixels(i)<100
+
+            I(CC.PixelIdxList{i}) = 0;
+        end
+    end
+    
+    I = I.*logical(mask);
+    
+    TP=0;TN=0;FP=0;FN=0;
+    
+    for i=1:x
+        for j=1:y
+            if I(i,j)==1 && manual_ans(i,j) == 255
+                TP = TP+1;
+            elseif I(i,j)==0 && manual_ans(i,j) == 255
+                FN = FN+1;
+            elseif I(i,j)==1 && manual_ans(i,j) == 0
+                FP = FP+1;
+            elseif I(i,j)==0 && manual_ans(i,j) == 0
+                TN = TN+1;
+            end            
+        end
+    end
+    T=zeros(1,4);
+    T(1) = k;
+    T(2) = TP/(TP+FN);
+    T(3) = TN/(TN+FP);
+    T(4) = (TP+TN)/(TP+TN+FP+FN);
+    
+    index = "0"+num2str(k);
+    path = "./ANS/"+ index +".tif";
+    imwrite(I ,path);
+end
